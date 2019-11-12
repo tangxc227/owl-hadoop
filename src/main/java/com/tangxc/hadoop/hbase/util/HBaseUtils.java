@@ -97,16 +97,17 @@ public class HBaseUtils {
         if (null != endRow) {
             scan.setStartRow(Bytes.toBytes(endRow));
         }
-        FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+
         if (null != columns && columns.length > 0) {
+            FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
             byte[][] prefixes = new byte[columns.length][];
             for (int i = 0; i < columns.length; i++) {
                 prefixes[i] = Bytes.toBytes(columns[i]);
             }
             MultipleColumnPrefixFilter mcpf = new MultipleColumnPrefixFilter(prefixes);
             filterList.addFilter(mcpf);
+            scan.setFilter(filterList);
         }
-        scan.setFilter(filterList);
         ResultScanner resultScanner = getTable(tableName).getScanner(scan);
         for (Result result : resultScanner) {
             System.out.println(Bytes.toString(result.getRow()));
